@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Plot Exp 1 results: throughput vs buffer, faceted by (delay, bandwidth), one line per CC."""
+"""Throughput vs buffer, faceted by (delay, bandwidth), one line per CC."""
 from __future__ import annotations
 
 import sys
 from pathlib import Path
 
 import matplotlib
-matplotlib.use("Agg")   # headless backend; avoids GTK shutdown segfault on this box
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 

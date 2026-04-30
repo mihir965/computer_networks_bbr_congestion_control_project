@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-"""Plot Exp 3 fairness: per-flow throughput over time, plus Jain's index per pair.
+"""Per-flow throughput over time and Jain's index per pair, for Exp 3.
 
-Jain's fairness index for n flows: J = (sum x_i)^2 / (n * sum x_i^2).
-J = 1.0 -> perfectly equal share. J = 1/n -> one flow gets everything.
+Jain's index for n flows: J = (sum x_i)^2 / (n * sum x_i^2).
 """
 from __future__ import annotations
 
@@ -58,7 +57,6 @@ def main() -> int:
         df_a = load_intervals(path_a)
         df_b = load_intervals(path_b)
 
-        # Two flows of the same CC: differentiate by linestyle/label suffix.
         suffix_a, suffix_b = (" (A)", " (B)") if cc_a == cc_b else ("", "")
         ax.plot(df_a["t"], df_a["mbps"], color=CC_COLOR[cc_a],
                 label=f"{cc_a.upper()}{suffix_a}", linewidth=1.4)
@@ -71,7 +69,7 @@ def main() -> int:
         ax.grid(True, alpha=0.3)
         ax.legend(loc="upper right", fontsize=9)
 
-        # Steady-state stats (skip first 5 s = ramp-up).
+        # Skip first 5s (ramp-up).
         steady_a = df_a[df_a["t"] >= 5]["mbps"]
         steady_b = df_b[df_b["t"] >= 5]["mbps"]
         mean_a = steady_a.mean()
@@ -91,7 +89,7 @@ def main() -> int:
         })
 
     axes[-1].set_xlabel("time (s)")
-    fig.suptitle("Exp 3: fairness — two competing flows on 100 Mbps / 40 ms RTT / 100 pkt buffer",
+    fig.suptitle("Exp 3: fairness (two competing flows, 100 Mbps / 40 ms RTT / 1000 pkt buffer)",
                  fontsize=12, y=1.0)
     fig.tight_layout()
     OUT.parent.mkdir(parents=True, exist_ok=True)

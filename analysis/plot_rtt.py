@@ -1,14 +1,5 @@
 #!/usr/bin/env python3
-"""Plot Exp 2 RTT time-series for each CC and print an inflation table.
-
-Reads RTT from iperf3's per-interval TCP_INFO data on the data socket —
-much more reliable than external `ss` sampling, which can grab the wrong
-socket (iperf3 also opens an idle control socket on the same port).
-
-The minimum RTT (~40 ms) is the propagation floor. CUBIC/RENO fill the
-1000-packet buffer until tail-drop, inflating RTT well above the floor.
-BBR paces to BDP and ignores the surplus buffer, so RTT stays near 40 ms.
-"""
+"""RTT and throughput time-series for Exp 2, plus inflation table."""
 from __future__ import annotations
 
 import json
@@ -37,7 +28,7 @@ def load_intervals(cc: str) -> pd.DataFrame:
         s = iv["streams"][0]
         rows.append({
             "t_end": s["end"],
-            "rtt_ms": s["rtt"] / 1000.0,        # us -> ms
+            "rtt_ms": s["rtt"] / 1000.0,
             "throughput_mbps": s["bits_per_second"] / 1e6,
         })
     return pd.DataFrame(rows)
@@ -76,7 +67,7 @@ def main() -> int:
     ax_rtt.axhline(40, color="black", linestyle="--", linewidth=1,
                    alpha=0.5, label="propagation RTT (40 ms)")
     ax_rtt.set_ylabel("TCP smoothed RTT (ms)")
-    ax_rtt.set_title("Exp 2: RTT and throughput under sustained load — 100 Mbps, 40 ms base RTT, 1000 pkt buffer")
+    ax_rtt.set_title("Exp 2: RTT and throughput under sustained load (100 Mbps, 40 ms RTT, 1000 pkt buffer)")
     ax_rtt.legend(loc="upper right")
     ax_rtt.grid(True, alpha=0.3)
 

@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""Parse iperf3 JSON outputs from data/raw/exp1/ into a tidy CSV.
-
-Filename convention: <cc>_<bw>_<delay>_<buf>p.json
-Example: bbr_100mbit_20ms_1000p.json
-"""
+"""Parse iperf3 JSON outputs from data/raw/exp1/ into a CSV."""
 from __future__ import annotations
 
 import json
@@ -17,7 +13,6 @@ ROOT = Path(__file__).resolve().parent.parent
 RAW = ROOT / "data" / "raw" / "exp1"
 OUT = ROOT / "analysis" / "exp1_results.csv"
 
-# bbr_100mbit_20ms_1000p.json
 NAME_RE = re.compile(r"^([a-z]+)_(\d+)mbit_(\d+)ms_(\d+)p\.json$")
 
 
@@ -43,12 +38,12 @@ def parse_one(path: Path) -> dict | None:
     return {
         "cc": cc,
         "bw_mbit": bw_mbit,
-        "delay_ms": delay_ms,           # one-way; RTT = 2 * delay_ms
+        "delay_ms": delay_ms,
         "buf_pkt": buf_pkt,
         "throughput_mbps": sum_recv.get("bits_per_second", 0) / 1e6,
         "sender_mbps": sum_sent.get("bits_per_second", 0) / 1e6,
         "retransmits": sum_sent.get("retransmits", 0),
-        "mean_rtt_ms": sender_stats.get("mean_rtt", 0) / 1000.0,    # us -> ms
+        "mean_rtt_ms": sender_stats.get("mean_rtt", 0) / 1000.0,
         "min_rtt_ms": sender_stats.get("min_rtt", 0) / 1000.0,
         "max_rtt_ms": sender_stats.get("max_rtt", 0) / 1000.0,
     }

@@ -1,15 +1,7 @@
 #!/usr/bin/env bash
-# exp2_bufferbloat.sh — measure RTT under sustained load on a deep-buffered link.
-#
-# Fixed conditions: 100mbit, 20ms one-way (40ms RTT), 1000-pkt buffer.
-# For each CC: 60s iperf3 flow with -i 0.1 (100 ms reporting interval).
-# RTT is read from iperf3's TCP_INFO interval data on the *data* socket —
-# we previously tried `ss` for sampling but `ss | head -1` grabbed iperf3's
-# control socket (idle, no bloat) instead of the data socket.
-#
-# Output: data/raw/exp2/iperf_<cc>.json  (parse intervals[] for RTT-over-time)
-#
-# Total time: ~3 min.
+# 60s flow per CC at 100mbit, 20ms one-way (40ms RTT), 1000 pkt buffer.
+# RTT comes from iperf3 per-interval TCP_INFO (-i 0.1).
+# Output: data/raw/exp2/iperf_<cc>.json
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -46,7 +38,6 @@ for cc in "${CCS[@]}"; do
     iperf_json="$OUT/iperf_${cc}.json"
     sudo ip netns exec ns2 iperf3 -c 10.0.0.1 -t "$DURATION" -i "$INTERVAL" -J -C "$cc" > "$iperf_json"
 
-    # Print headline summary from end stats.
     python3 -c "
 import json
 d = json.load(open('$iperf_json'))
